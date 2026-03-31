@@ -1,0 +1,226 @@
+
+<style>
+  .frc { padding: 1rem 0; font-family: var(--font-sans); }
+  .panel { background: #0d1117; border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .field label { font-size: 12px; color: #8b949e; margin-bottom: 4px; display: block; }
+  .field select, .field input { width: 100%; background: #161b22; border: 0.5px solid #30363d; color: #e6edf3; border-radius: 6px; padding: 8px 10px; font-size: 14px; box-sizing: border-box; }
+  .field select:focus, .field input:focus { outline: none; border-color: #388bfd; }
+  .field input.highlight { border-color: #e3b341; background: #1c1a0f; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat { background: #161b22; border-radius: 8px; padding: 12px 14px; border: 0.5px solid #30363d; }
+  .stat .slabel { font-size: 11px; color: #8b949e; margin-bottom: 4px; }
+  .stat .sval { font-size: 20px; font-weight: 500; }
+  .stat.featured { border-color: #e3b341; background: #1c1a0f; }
+  .stat.featured .slabel { color: #e3b341; }
+  .stat.featured .sval { font-size: 28px; color: #e3b341; }
+  .red { color: #f85149; }
+  .green { color: #3fb950; }
+  .amber { color: #e3b341; }
+  .cyan { color: #79c0ff; }
+  .white { color: #e6edf3; }
+  .divider { border: none; border-top: 0.5px solid #30363d; margin: 12px 0; }
+  .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .title { font-size: 13px; color: #8b949e; }
+  .rr-big { text-align: center; background: #161b22; border-radius: 8px; padding: 14px; border: 0.5px solid #30363d; }
+  .rr-big .rr-label { font-size: 11px; color: #8b949e; margin-bottom: 4px; }
+  .rr-big .rr-val { font-size: 28px; font-weight: 500; color: #e3b341; }
+  .tick-info { font-size: 11px; color: #8b949e; margin-top: 2px; }
+  .warn { color: #f85149; font-size: 11px; margin-top: 4px; }
+  .mode-toggle { display: flex; gap: 0; margin-bottom: 14px; border-radius: 6px; overflow: hidden; border: 0.5px solid #30363d; }
+  .mode-btn { flex: 1; padding: 7px 10px; font-size: 12px; background: #161b22; color: #8b949e; border: none; cursor: pointer; transition: background 0.15s; }
+  .mode-btn.active { background: #e3b341; color: #0d1117; font-weight: 500; }
+  .section-label { font-size: 11px; color: #e3b341; margin-bottom: 8px; letter-spacing: 0.04em; }
+  .info-bar { margin-top: 10px; background: #161b22; border-radius: 8px; padding: 10px 14px; border: 0.5px solid #30363d; font-size: 12px; color: #8b949e; line-height: 1.8; }
+</style>
+
+<div class="frc">
+  <div class="panel">
+    <div class="header-row">
+      <span class="title">Futures Risk Calculator</span>
+      <span id="asset-badge" style="background:#e3b341;color:#0d1117;border-radius:4px;padding:2px 8px;font-size:13px;font-weight:500;">MNQ1!</span>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" onclick="setMode('risk')" id="btn-risk">กำหนด Risk → คำนวณ Lot</button>
+      <button class="mode-btn" onclick="setMode('lot')" id="btn-lot">กำหนด Lot → คำนวณ Risk</button>
+    </div>
+
+    <div class="section-label">ข้อมูล Futures</div>
+    <div class="row2">
+      <div class="field">
+        <label>Asset</label>
+        <select id="asset" onchange="calc()">
+          <option value="MNQ">MNQ — Micro Nasdaq</option>
+          <option value="MES">MES — Micro S&P 500</option>
+          <option value="NQ">NQ — Nasdaq-100</option>
+          <option value="ES">ES — E-mini S&P 500</option>
+          <option value="MYM">MYM — Micro Dow</option>
+          <option value="YM">YM — E-mini Dow</option>
+          <option value="MCL">MCL — Micro Crude Oil</option>
+          <option value="CL">CL — Crude Oil</option>
+          <option value="MGC">MGC — Micro Gold</option>
+          <option value="GC">GC — Gold</option>
+          <option value="6E">6E — Euro FX</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Account Size ($)</label>
+        <input type="number" id="acct" value="10000" step="1000" onchange="calc()" oninput="calc()" />
+      </div>
+    </div>
+
+    <div class="section-label">ราคา</div>
+    <div class="row2">
+      <div class="field">
+        <label>Entry Price</label>
+        <input type="number" id="entry" value="23390.50" step="0.25" onchange="calc()" oninput="calc()" />
+      </div>
+      <div class="field">
+        <label>Stop Loss Price</label>
+        <input type="number" id="sl" value="23372.00" step="0.25" onchange="calc()" oninput="calc()" />
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Take Profit Price</label>
+        <input type="number" id="tp" value="23540.50" step="0.25" onchange="calc()" oninput="calc()" />
+      </div>
+      <div class="field" id="field-risk-pct" style="">
+        <label>Risk ที่ยอมรับได้ (% ของบัญชี)</label>
+        <input type="number" id="risk-pct" value="1" step="0.1" min="0.1" max="100" class="highlight" onchange="calc()" oninput="calc()" />
+      </div>
+    </div>
+
+    <div id="field-lot-row" style="display:none;" class="row2">
+      <div class="field">
+        <label>จำนวน Lot (กำหนดเอง)</label>
+        <input type="number" id="lots-manual" value="3" min="1" max="999" class="highlight" onchange="calc()" oninput="calc()" />
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="stat-grid">
+      <div class="stat featured" id="main-stat">
+        <div class="slabel" id="main-label">Lots แนะนำ</div>
+        <div class="sval" id="main-val">3</div>
+        <div class="tick-info" id="main-sub"></div>
+      </div>
+      <div class="stat">
+        <div class="slabel">Risk <span id="out-risk-ticks-label" style="color:#8b949e;font-weight:400;font-size:11px;"></span></div>
+        <div class="sval red" id="out-risk">$55.50</div>
+        <div class="tick-info" id="out-risk-pct"></div>
+      </div>
+      <div class="stat">
+        <div class="slabel">Reward <span id="out-reward-ticks-label" style="color:#8b949e;font-weight:400;font-size:11px;"></span></div>
+        <div class="sval green" id="out-reward">$450.00</div>
+      </div>
+      <div class="rr-big">
+        <div class="rr-label">R:R Ratio</div>
+        <div class="rr-val" id="out-rr">8.11</div>
+      </div>
+    </div>
+
+    <div id="warn-msg" class="warn" style="display:none;"></div>
+
+    <div class="info-bar">
+      <span id="contract-info"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+const ASSETS = {
+  MNQ: { label:"MNQ1!", tick:0.25, tickVal:0.50, pointVal:2 },
+  MES: { label:"MES1!", tick:0.25, tickVal:1.25, pointVal:5 },
+  NQ:  { label:"NQ1!",  tick:0.25, tickVal:5.00, pointVal:20 },
+  ES:  { label:"ES1!",  tick:0.25, tickVal:12.50, pointVal:50 },
+  MYM: { label:"MYM1!", tick:1.00, tickVal:0.50, pointVal:0.5 },
+  YM:  { label:"YM1!",  tick:1.00, tickVal:5.00, pointVal:5 },
+  MCL: { label:"MCL1!", tick:0.01, tickVal:1.00, pointVal:100 },
+  CL:  { label:"CL1!",  tick:0.01, tickVal:10.00, pointVal:1000 },
+  MGC: { label:"MGC1!", tick:0.10, tickVal:1.00, pointVal:10 },
+  GC:  { label:"GC1!",  tick:0.10, tickVal:10.00, pointVal:100 },
+  "6E":{ label:"6E1!",  tick:0.00005, tickVal:6.25, pointVal:125000 },
+};
+
+let mode = 'risk'; // 'risk' = กำหนด % risk แล้วคำนวณ lot | 'lot' = กำหนด lot แล้วคำนวณ risk
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-risk').classList.toggle('active', m === 'risk');
+  document.getElementById('btn-lot').classList.toggle('active', m === 'lot');
+  document.getElementById('field-risk-pct').style.display = m === 'risk' ? '' : 'none';
+  document.getElementById('field-lot-row').style.display = m === 'lot' ? '' : 'none';
+  calc();
+}
+
+function calc() {
+  const key = document.getElementById('asset').value;
+  const a = ASSETS[key];
+  const entry = parseFloat(document.getElementById('entry').value) || 0;
+  const sl = parseFloat(document.getElementById('sl').value) || 0;
+  const tp = parseFloat(document.getElementById('tp').value) || 0;
+  const acct = parseFloat(document.getElementById('acct').value) || 10000;
+
+  document.getElementById('asset-badge').textContent = a.label;
+
+  const riskPts = Math.abs(entry - sl);
+  const rewardPts = Math.abs(tp - entry);
+  const riskTicks = Math.round(riskPts / a.tick);
+  const rewardTicks = Math.round(rewardPts / a.tick);
+  const riskPerLotPerTick = a.tickVal;
+  const riskPerLot = riskTicks * riskPerLotPerTick;
+
+  let lots = 1;
+  let warnMsg = '';
+
+  if (mode === 'risk') {
+    const riskPct = parseFloat(document.getElementById('risk-pct').value) || 1;
+    const maxRiskDollar = acct * (riskPct / 100);
+    if (riskPerLot > 0) {
+      lots = Math.floor(maxRiskDollar / riskPerLot);
+      if (lots < 1) {
+        lots = 1;
+        warnMsg = `⚠️ Risk ต่อ 1 Lot = $${riskPerLot.toFixed(2)} เกิน ${riskPct}% ของบัญชี ($${maxRiskDollar.toFixed(2)}) — แนะนำ 1 Lot`;
+      }
+    }
+
+    document.getElementById('main-label').textContent = 'Lots แนะนำ';
+    document.getElementById('main-val').textContent = lots + ' Lot' + (lots > 1 ? 's' : '');
+    document.getElementById('main-sub').textContent = `Risk ${riskPct}% = $${(acct * riskPct / 100).toFixed(2)}`;
+
+  } else {
+    lots = parseInt(document.getElementById('lots-manual').value) || 1;
+    const riskDollar = riskPerLot * lots;
+    const riskPct = acct > 0 ? (riskDollar / acct * 100) : 0;
+
+    document.getElementById('main-label').textContent = 'Risk % ของบัญชี';
+    document.getElementById('main-val').textContent = riskPct.toFixed(2) + '%';
+    document.getElementById('main-sub').textContent = `${lots} Lot = $${riskDollar.toFixed(2)}`;
+  }
+
+  const riskDollar = riskPerLot * lots;
+  const rewardDollar = rewardTicks * a.tickVal * lots;
+  const rr = riskDollar > 0 ? (rewardDollar / riskDollar) : 0;
+  const riskPct2 = acct > 0 ? (riskDollar / acct * 100) : 0;
+
+  document.getElementById('out-risk-ticks-label').textContent = riskTicks > 0 ? `(${riskTicks} Ticks)` : '';
+  document.getElementById('out-reward-ticks-label').textContent = rewardTicks > 0 ? `(${rewardTicks} Ticks)` : '';
+  document.getElementById('out-risk').textContent = '$' + riskDollar.toFixed(2);
+  document.getElementById('out-reward').textContent = '$' + rewardDollar.toFixed(2);
+  document.getElementById('out-rr').textContent = rr.toFixed(2);
+  document.getElementById('out-risk-pct').textContent = riskPct2.toFixed(2) + '% of account';
+
+  const warnEl = document.getElementById('warn-msg');
+  if (warnMsg) { warnEl.style.display = ''; warnEl.textContent = warnMsg; }
+  else { warnEl.style.display = 'none'; }
+
+  const nTicksPerPoint = Math.round(1 / a.tick);
+  document.getElementById('contract-info').innerHTML =
+    `1 Point = $${a.pointVal} &nbsp;|&nbsp; Min Tick = ${a.tick} pts &nbsp;|&nbsp; 1 Tick = $${a.tickVal} &nbsp;|&nbsp; 1 Point = ${nTicksPerPoint} Ticks`;
+}
+
+calc();
+</script>
