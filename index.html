@@ -1,133 +1,112 @@
 
-<style>
-  .frc { padding: 1rem 0; font-family: var(--font-sans); }
-  .panel { background: #0d1117; border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .field label { font-size: 12px; color: #8b949e; margin-bottom: 4px; display: block; }
-  .field select, .field input { width: 100%; background: #161b22; border: 0.5px solid #30363d; color: #e6edf3; border-radius: 6px; padding: 8px 10px; font-size: 14px; box-sizing: border-box; }
-  .field select:focus, .field input:focus { outline: none; border-color: #388bfd; }
-  .field input.highlight { border-color: #e3b341; background: #1c1a0f; }
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .stat { background: #161b22; border-radius: 8px; padding: 12px 14px; border: 0.5px solid #30363d; }
-  .stat .slabel { font-size: 11px; color: #8b949e; margin-bottom: 4px; }
-  .stat .sval { font-size: 20px; font-weight: 500; }
-  .stat.featured { border-color: #e3b341; background: #1c1a0f; }
-  .stat.featured .slabel { color: #e3b341; }
-  .stat.featured .sval { font-size: 28px; color: #e3b341; }
-  .red { color: #f85149; }
-  .green { color: #3fb950; }
-  .amber { color: #e3b341; }
-  .cyan { color: #79c0ff; }
-  .white { color: #e6edf3; }
-  .divider { border: none; border-top: 0.5px solid #30363d; margin: 12px 0; }
-  .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .title { font-size: 13px; color: #8b949e; }
-  .rr-big { text-align: center; background: #161b22; border-radius: 8px; padding: 14px; border: 0.5px solid #30363d; }
-  .rr-big .rr-label { font-size: 11px; color: #8b949e; margin-bottom: 4px; }
-  .rr-big .rr-val { font-size: 28px; font-weight: 500; color: #e3b341; }
-  .tick-info { font-size: 11px; color: #8b949e; margin-top: 2px; }
-  .warn { color: #f85149; font-size: 11px; margin-top: 4px; }
-  .mode-toggle { display: flex; gap: 0; margin-bottom: 14px; border-radius: 6px; overflow: hidden; border: 0.5px solid #30363d; }
-  .mode-btn { flex: 1; padding: 7px 10px; font-size: 12px; background: #161b22; color: #8b949e; border: none; cursor: pointer; transition: background 0.15s; }
-  .mode-btn.active { background: #e3b341; color: #0d1117; font-weight: 500; }
-  .section-label { font-size: 11px; color: #e3b341; margin-bottom: 8px; letter-spacing: 0.04em; }
-  .info-bar { margin-top: 10px; background: #161b22; border-radius: 8px; padding: 10px 14px; border: 0.5px solid #30363d; font-size: 12px; color: #8b949e; line-height: 1.8; }
-</style>
+<div style="display:flex;justify-content:center;align-items:flex-start;padding:1rem 0;">
+<div style="width:380px;min-width:380px;max-width:380px;background:#0d1117;border-radius:12px;padding:20px;font-family:var(--font-sans);color:#e6edf3;">
 
-<div class="frc">
-  <div class="panel">
-    <div class="header-row">
-      <span class="title">Futures Risk Calculator</span>
-      <span id="asset-badge" style="background:#e3b341;color:#0d1117;border-radius:4px;padding:2px 8px;font-size:13px;font-weight:500;">MNQ1!</span>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <span style="font-size:13px;color:#8b949e;">Futures Risk Calculator</span>
+    <span id="asset-badge" style="background:#e3b341;color:#0d1117;border-radius:4px;padding:2px 10px;font-size:13px;font-weight:500;">MNQ1!</span>
+  </div>
+
+  <div style="display:flex;border-radius:6px;overflow:hidden;border:0.5px solid #30363d;margin-bottom:16px;">
+    <button id="btn-risk" onclick="setMode('risk')" style="flex:1;padding:7px 6px;font-size:12px;background:#e3b341;color:#0d1117;border:none;cursor:pointer;font-weight:500;">Risk → คำนวณ Lot</button>
+    <button id="btn-lot" onclick="setMode('lot')" style="flex:1;padding:7px 6px;font-size:12px;background:#161b22;color:#8b949e;border:none;cursor:pointer;">Lot → คำนวณ Risk</button>
+  </div>
+
+  <div style="font-size:11px;color:#e3b341;margin-bottom:8px;letter-spacing:.04em;">ข้อมูล Futures</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+    <div>
+      <div style="font-size:12px;color:#8b949e;margin-bottom:4px;">Asset</div>
+      <select id="asset" onchange="calc()" style="width:100%;background:#161b22;border:0.5px solid #30363d;color:#e6edf3;border-radius:6px;padding:7px 8px;font-size:13px;box-sizing:border-box;">
+        <option value="MNQ">MNQ — Micro Nasdaq</option>
+        <option value="MES">MES — Micro S&P 500</option>
+        <option value="NQ">NQ — Nasdaq-100</option>
+        <option value="ES">ES — E-mini S&P 500</option>
+        <option value="MYM">MYM — Micro Dow</option>
+        <option value="YM">YM — E-mini Dow</option>
+        <option value="MCL">MCL — Micro Crude Oil</option>
+        <option value="CL">CL — Crude Oil</option>
+        <option value="MGC">MGC — Micro Gold</option>
+        <option value="GC">GC — Gold</option>
+        <option value="6E">6E — Euro FX</option>
+      </select>
     </div>
-
-    <div class="mode-toggle">
-      <button class="mode-btn active" onclick="setMode('risk')" id="btn-risk">กำหนด Risk → คำนวณ Lot</button>
-      <button class="mode-btn" onclick="setMode('lot')" id="btn-lot">กำหนด Lot → คำนวณ Risk</button>
+    <div>
+      <div style="font-size:12px;color:#8b949e;margin-bottom:4px;">Account Size ($)</div>
+      <input type="number" id="acct" value="10000" step="1000" onchange="calc()" oninput="calc()" style="width:100%;background:#161b22;border:0.5px solid #30363d;color:#e6edf3;border-radius:6px;padding:7px 8px;font-size:13px;box-sizing:border-box;" />
     </div>
+  </div>
 
-    <div class="section-label">ข้อมูล Futures</div>
-    <div class="row2">
-      <div class="field">
-        <label>Asset</label>
-        <select id="asset" onchange="calc()">
-          <option value="MNQ">MNQ — Micro Nasdaq</option>
-          <option value="MES">MES — Micro S&P 500</option>
-          <option value="NQ">NQ — Nasdaq-100</option>
-          <option value="ES">ES — E-mini S&P 500</option>
-          <option value="MYM">MYM — Micro Dow</option>
-          <option value="YM">YM — E-mini Dow</option>
-          <option value="MCL">MCL — Micro Crude Oil</option>
-          <option value="CL">CL — Crude Oil</option>
-          <option value="MGC">MGC — Micro Gold</option>
-          <option value="GC">GC — Gold</option>
-          <option value="6E">6E — Euro FX</option>
-        </select>
+  <div style="font-size:11px;color:#e3b341;margin-bottom:8px;letter-spacing:.04em;">ราคา</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+    <div>
+      <div style="font-size:12px;color:#8b949e;margin-bottom:4px;">Entry Price</div>
+      <input type="number" id="entry" value="23390.50" step="0.25" onchange="calc()" oninput="calc()" style="width:100%;background:#161b22;border:0.5px solid #30363d;color:#e6edf3;border-radius:6px;padding:7px 8px;font-size:13px;box-sizing:border-box;" />
+    </div>
+    <div>
+      <div style="font-size:12px;color:#8b949e;margin-bottom:4px;">Stop Loss Price</div>
+      <input type="number" id="sl" value="23372.00" step="0.25" onchange="calc()" oninput="calc()" style="width:100%;background:#161b22;border:0.5px solid #30363d;color:#e6edf3;border-radius:6px;padding:7px 8px;font-size:13px;box-sizing:border-box;" />
+    </div>
+  </div>
+  <div style="margin-bottom:12px;">
+    <div style="font-size:12px;color:#8b949e;margin-bottom:4px;">Take Profit Price</div>
+    <input type="number" id="tp" value="23540.50" step="0.25" onchange="calc()" oninput="calc()" style="width:100%;background:#161b22;border:0.5px solid #30363d;color:#e6edf3;border-radius:6px;padding:7px 8px;font-size:13px;box-sizing:border-box;" />
+  </div>
+
+  <div id="section-risk" style="">
+    <div style="font-size:11px;color:#e3b341;margin-bottom:8px;letter-spacing:.04em;">กำหนด Risk</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div>
+        <div style="font-size:12px;color:#8b949e;margin-bottom:4px;">Risk ที่ยอมรับได้</div>
+        <input type="number" id="risk-val" value="1" step="0.1" min="0.01" onchange="calc()" oninput="calc()" style="width:100%;background:#1c1a0f;border:0.5px solid #e3b341;color:#e6edf3;border-radius:6px;padding:7px 8px;font-size:13px;box-sizing:border-box;" />
       </div>
-      <div class="field">
-        <label>Account Size ($)</label>
-        <input type="number" id="acct" value="10000" step="1000" onchange="calc()" oninput="calc()" />
+      <div>
+        <div style="font-size:12px;color:#8b949e;margin-bottom:4px;">หน่วย</div>
+        <div style="display:flex;border-radius:6px;overflow:hidden;border:0.5px solid #30363d;height:34px;">
+          <button id="btn-pct" onclick="setRiskUnit('pct')" style="flex:1;font-size:13px;background:#e3b341;color:#0d1117;border:none;cursor:pointer;font-weight:500;">%</button>
+          <button id="btn-usd" onclick="setRiskUnit('usd')" style="flex:1;font-size:13px;background:#161b22;color:#8b949e;border:none;cursor:pointer;">$</button>
+        </div>
       </div>
     </div>
+  </div>
 
-    <div class="section-label">ราคา</div>
-    <div class="row2">
-      <div class="field">
-        <label>Entry Price</label>
-        <input type="number" id="entry" value="23390.50" step="0.25" onchange="calc()" oninput="calc()" />
+  <div id="section-lot" style="display:none;">
+    <div style="font-size:11px;color:#e3b341;margin-bottom:8px;letter-spacing:.04em;">กำหนด Lot</div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:12px;color:#8b949e;margin-bottom:4px;">จำนวน Lot</div>
+      <input type="number" id="lots-manual" value="3" min="1" onchange="calc()" oninput="calc()" style="width:100%;background:#1c1a0f;border:0.5px solid #e3b341;color:#e6edf3;border-radius:6px;padding:7px 8px;font-size:13px;box-sizing:border-box;" />
+    </div>
+  </div>
+
+  <div style="border-top:0.5px solid #30363d;padding-top:14px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div id="main-stat" style="background:#1c1a0f;border-radius:8px;padding:12px 14px;border:0.5px solid #e3b341;">
+        <div id="main-label" style="font-size:11px;color:#e3b341;margin-bottom:4px;">Lots แนะนำ</div>
+        <div id="main-val" style="font-size:26px;font-weight:500;color:#e3b341;">3 Lots</div>
+        <div id="main-sub" style="font-size:11px;color:#8b949e;margin-top:2px;"></div>
       </div>
-      <div class="field">
-        <label>Stop Loss Price</label>
-        <input type="number" id="sl" value="23372.00" step="0.25" onchange="calc()" oninput="calc()" />
+      <div style="background:#161b22;border-radius:8px;padding:12px 14px;border:0.5px solid #30363d;">
+        <div style="font-size:11px;color:#8b949e;margin-bottom:4px;">R:R Ratio</div>
+        <div id="out-rr" style="font-size:26px;font-weight:500;color:#e3b341;">8.11</div>
       </div>
     </div>
-    <div class="row2">
-      <div class="field">
-        <label>Take Profit Price</label>
-        <input type="number" id="tp" value="23540.50" step="0.25" onchange="calc()" oninput="calc()" />
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div style="background:#161b22;border-radius:8px;padding:12px 14px;border:0.5px solid #30363d;">
+        <div style="font-size:11px;color:#8b949e;margin-bottom:2px;">Risk <span id="out-risk-ticks-label" style="color:#8b949e;font-size:10px;"></span></div>
+        <div id="out-risk" style="font-size:18px;font-weight:500;color:#f85149;">$55.50</div>
+        <div id="out-risk-pct" style="font-size:11px;color:#8b949e;margin-top:2px;"></div>
       </div>
-      <div class="field" id="field-risk-pct" style="">
-        <label>Risk ที่ยอมรับได้ (% ของบัญชี)</label>
-        <input type="number" id="risk-pct" value="1" step="0.1" min="0.1" max="100" class="highlight" onchange="calc()" oninput="calc()" />
-      </div>
-    </div>
-
-    <div id="field-lot-row" style="display:none;" class="row2">
-      <div class="field">
-        <label>จำนวน Lot (กำหนดเอง)</label>
-        <input type="number" id="lots-manual" value="3" min="1" max="999" class="highlight" onchange="calc()" oninput="calc()" />
+      <div style="background:#161b22;border-radius:8px;padding:12px 14px;border:0.5px solid #30363d;">
+        <div style="font-size:11px;color:#8b949e;margin-bottom:2px;">Reward <span id="out-reward-ticks-label" style="color:#8b949e;font-size:10px;"></span></div>
+        <div id="out-reward" style="font-size:18px;font-weight:500;color:#3fb950;">$450.00</div>
       </div>
     </div>
-
-    <hr class="divider" />
-
-    <div class="stat-grid">
-      <div class="stat featured" id="main-stat">
-        <div class="slabel" id="main-label">Lots แนะนำ</div>
-        <div class="sval" id="main-val">3</div>
-        <div class="tick-info" id="main-sub"></div>
-      </div>
-      <div class="stat">
-        <div class="slabel">Risk <span id="out-risk-ticks-label" style="color:#8b949e;font-weight:400;font-size:11px;"></span></div>
-        <div class="sval red" id="out-risk">$55.50</div>
-        <div class="tick-info" id="out-risk-pct"></div>
-      </div>
-      <div class="stat">
-        <div class="slabel">Reward <span id="out-reward-ticks-label" style="color:#8b949e;font-weight:400;font-size:11px;"></span></div>
-        <div class="sval green" id="out-reward">$450.00</div>
-      </div>
-      <div class="rr-big">
-        <div class="rr-label">R:R Ratio</div>
-        <div class="rr-val" id="out-rr">8.11</div>
-      </div>
-    </div>
-
-    <div id="warn-msg" class="warn" style="display:none;"></div>
-
-    <div class="info-bar">
+    <div id="warn-msg" style="display:none;color:#f85149;font-size:11px;margin-bottom:8px;"></div>
+    <div style="background:#161b22;border-radius:8px;padding:10px 12px;border:0.5px solid #30363d;font-size:11px;color:#8b949e;line-height:1.9;">
       <span id="contract-info"></span>
     </div>
   </div>
+
+</div>
 </div>
 
 <script>
@@ -145,14 +124,30 @@ const ASSETS = {
   "6E":{ label:"6E1!",  tick:0.00005, tickVal:6.25, pointVal:125000 },
 };
 
-let mode = 'risk'; // 'risk' = กำหนด % risk แล้วคำนวณ lot | 'lot' = กำหนด lot แล้วคำนวณ risk
+let mode = 'risk';
+let riskUnit = 'pct';
 
 function setMode(m) {
   mode = m;
-  document.getElementById('btn-risk').classList.toggle('active', m === 'risk');
-  document.getElementById('btn-lot').classList.toggle('active', m === 'lot');
-  document.getElementById('field-risk-pct').style.display = m === 'risk' ? '' : 'none';
-  document.getElementById('field-lot-row').style.display = m === 'lot' ? '' : 'none';
+  document.getElementById('btn-risk').style.background = m==='risk' ? '#e3b341' : '#161b22';
+  document.getElementById('btn-risk').style.color = m==='risk' ? '#0d1117' : '#8b949e';
+  document.getElementById('btn-risk').style.fontWeight = m==='risk' ? '500' : '400';
+  document.getElementById('btn-lot').style.background = m==='lot' ? '#e3b341' : '#161b22';
+  document.getElementById('btn-lot').style.color = m==='lot' ? '#0d1117' : '#8b949e';
+  document.getElementById('btn-lot').style.fontWeight = m==='lot' ? '500' : '400';
+  document.getElementById('section-risk').style.display = m==='risk' ? '' : 'none';
+  document.getElementById('section-lot').style.display = m==='lot' ? '' : 'none';
+  calc();
+}
+
+function setRiskUnit(u) {
+  riskUnit = u;
+  document.getElementById('btn-pct').style.background = u==='pct' ? '#e3b341' : '#161b22';
+  document.getElementById('btn-pct').style.color = u==='pct' ? '#0d1117' : '#8b949e';
+  document.getElementById('btn-pct').style.fontWeight = u==='pct' ? '500' : '400';
+  document.getElementById('btn-usd').style.background = u==='usd' ? '#e3b341' : '#161b22';
+  document.getElementById('btn-usd').style.color = u==='usd' ? '#0d1117' : '#8b949e';
+  document.getElementById('btn-usd').style.fontWeight = u==='usd' ? '500' : '400';
   calc();
 }
 
@@ -170,48 +165,50 @@ function calc() {
   const rewardPts = Math.abs(tp - entry);
   const riskTicks = Math.round(riskPts / a.tick);
   const rewardTicks = Math.round(rewardPts / a.tick);
-  const riskPerLotPerTick = a.tickVal;
-  const riskPerLot = riskTicks * riskPerLotPerTick;
+  const riskPerLot = riskTicks * a.tickVal;
 
   let lots = 1;
   let warnMsg = '';
 
   if (mode === 'risk') {
-    const riskPct = parseFloat(document.getElementById('risk-pct').value) || 1;
-    const maxRiskDollar = acct * (riskPct / 100);
+    const riskRaw = parseFloat(document.getElementById('risk-val').value) || 1;
+    const maxRiskDollar = riskUnit === 'pct' ? acct * (riskRaw / 100) : riskRaw;
     if (riskPerLot > 0) {
       lots = Math.floor(maxRiskDollar / riskPerLot);
       if (lots < 1) {
         lots = 1;
-        warnMsg = `⚠️ Risk ต่อ 1 Lot = $${riskPerLot.toFixed(2)} เกิน ${riskPct}% ของบัญชี ($${maxRiskDollar.toFixed(2)}) — แนะนำ 1 Lot`;
+        const label = riskUnit === 'pct' ? `${riskRaw}%` : `$${riskRaw}`;
+        warnMsg = `⚠️ Risk ต่อ 1 Lot = $${riskPerLot.toFixed(2)} เกินกว่า ${label} — แสดง 1 Lot`;
       }
     }
-
     document.getElementById('main-label').textContent = 'Lots แนะนำ';
-    document.getElementById('main-val').textContent = lots + ' Lot' + (lots > 1 ? 's' : '');
-    document.getElementById('main-sub').textContent = `Risk ${riskPct}% = $${(acct * riskPct / 100).toFixed(2)}`;
-
+    const riskDollarTarget = riskUnit === 'pct' ? acct * (riskRaw / 100) : riskRaw;
+    document.getElementById('main-sub').textContent = `Max Risk = $${riskDollarTarget.toFixed(2)}`;
   } else {
     lots = parseInt(document.getElementById('lots-manual').value) || 1;
     const riskDollar = riskPerLot * lots;
     const riskPct = acct > 0 ? (riskDollar / acct * 100) : 0;
-
     document.getElementById('main-label').textContent = 'Risk % ของบัญชี';
-    document.getElementById('main-val').textContent = riskPct.toFixed(2) + '%';
     document.getElementById('main-sub').textContent = `${lots} Lot = $${riskDollar.toFixed(2)}`;
   }
 
   const riskDollar = riskPerLot * lots;
   const rewardDollar = rewardTicks * a.tickVal * lots;
   const rr = riskDollar > 0 ? (rewardDollar / riskDollar) : 0;
-  const riskPct2 = acct > 0 ? (riskDollar / acct * 100) : 0;
+  const riskPctOfAcct = acct > 0 ? (riskDollar / acct * 100) : 0;
+
+  if (mode === 'risk') {
+    document.getElementById('main-val').textContent = lots + (lots > 1 ? ' Lots' : ' Lot');
+  } else {
+    document.getElementById('main-val').textContent = riskPctOfAcct.toFixed(2) + '%';
+  }
 
   document.getElementById('out-risk-ticks-label').textContent = riskTicks > 0 ? `(${riskTicks} Ticks)` : '';
   document.getElementById('out-reward-ticks-label').textContent = rewardTicks > 0 ? `(${rewardTicks} Ticks)` : '';
   document.getElementById('out-risk').textContent = '$' + riskDollar.toFixed(2);
   document.getElementById('out-reward').textContent = '$' + rewardDollar.toFixed(2);
   document.getElementById('out-rr').textContent = rr.toFixed(2);
-  document.getElementById('out-risk-pct').textContent = riskPct2.toFixed(2) + '% of account';
+  document.getElementById('out-risk-pct').textContent = riskPctOfAcct.toFixed(2) + '% of account';
 
   const warnEl = document.getElementById('warn-msg');
   if (warnMsg) { warnEl.style.display = ''; warnEl.textContent = warnMsg; }
