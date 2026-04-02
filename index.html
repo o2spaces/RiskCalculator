@@ -411,6 +411,47 @@ input.hi:focus {
 .stat.risk-stat::before { background: var(--red); opacity: 1; }
 .stat.reward-stat::before { background: var(--green); opacity: 1; }
 
+/* Risk exceeded — card goes full red alert */
+@keyframes riskAlert {
+  0%, 100% {
+    border-color: rgba(255,77,109,0.45);
+    background: rgba(255,77,109,0.07);
+    box-shadow: 0 0 0 0 rgba(255,77,109,0);
+  }
+  50% {
+    border-color: rgba(255,77,109,0.9);
+    background: rgba(255,77,109,0.16);
+    box-shadow: 0 0 12px 2px rgba(255,77,109,0.2);
+  }
+}
+
+.stat.risk-exceeded {
+  animation: riskAlert 1.2s ease-in-out infinite;
+}
+
+.stat.risk-exceeded::before {
+  background: var(--red);
+  opacity: 1;
+  width: 4px;
+}
+
+.stat.risk-exceeded .stat-label {
+  color: rgba(255,77,109,0.8);
+}
+
+.risk-over-tag {
+  display: inline-block;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: rgba(255,77,109,0.2);
+  color: var(--red);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-top: 3px;
+  border: 1px solid rgba(255,77,109,0.4);
+}
+
 .stat-label {
   font-size: 9.5px;
   color: var(--muted);
@@ -964,7 +1005,7 @@ input.hi:focus {
       <div class="stat-value c-gold" id="out-rr">—</div>
       <div class="rr-bar-wrap"><div class="rr-bar-inner" id="rr-bar" style="width:0%"></div></div>
     </div>
-    <div class="stat risk-stat">
+    <div class="stat risk-stat" id="risk-stat-card">
       <div class="stat-label" id="risk-label">Risk</div>
       <div class="stat-value c-red" id="out-risk">—</div>
       <div class="stat-sub" id="out-risk-pct"></div>
@@ -1248,18 +1289,20 @@ function calc() {
     document.getElementById('be-row').style.display = 'none';
   }
 
-  // Warning
+  // Warning + risk card alert
   const wEl = document.getElementById('warn-msg');
+  const riskCard = document.getElementById('risk-stat-card');
   if (warn) {
     const parts = warn.split('|');
-    const severity = parts[0]; // 'over'
     const msg = parts[1];
     wEl.style.display = '';
     wEl.textContent = msg;
     wEl.className = 'warn warn-over';
+    riskCard.classList.add('risk-exceeded');
   } else {
     wEl.style.display = 'none';
     wEl.className = 'warn';
+    riskCard.classList.remove('risk-exceeded');
   }
 
   // Contract info
