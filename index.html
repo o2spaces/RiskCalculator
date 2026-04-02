@@ -541,6 +541,16 @@ input.hi:focus {
   display: none;
 }
 
+@keyframes warnPulse {
+  0%, 100% { border-color: rgba(255,77,109,0.35); background: rgba(255,77,109,0.08); }
+  50%       { border-color: rgba(255,77,109,0.75); background: rgba(255,77,109,0.16); }
+}
+
+.warn.warn-over {
+  animation: warnPulse 1.6s ease-in-out infinite;
+  font-weight: 500;
+}
+
 /* ─── ACTION BUTTONS ─── */
 .action-row {
   display: grid;
@@ -1168,7 +1178,11 @@ function calc() {
     const maxRisk = riskUnit === 'pct' ? acct * rv / 100 : rv;
     if (riskPerLot > 0) {
       lots = Math.floor(maxRisk / riskPerLot);
-      if (lots < 1) { lots = 1; warn = `⚠️ Risk ต่อ 1 Lot = $${riskPerLot.toFixed(2)} — เกินที่กำหนด แสดง 1 Lot`; }
+      if (lots < 1) {
+        lots = 1;
+        const over = riskPerLot - maxRisk;
+        warn = `over|⚠️ Risk ต่อ 1 Lot ($${riskPerLot.toFixed(2)}) เกิน Limit ที่ตั้งไว้ $${maxRisk.toFixed(2)} อยู่ $${over.toFixed(2)}`;
+      }
     }
     const lbl = riskUnit === 'pct' ? `${rv}% = $${(acct*rv/100).toFixed(2)}` : `$${rv.toFixed(2)}`;
     document.getElementById('main-label').textContent = 'Lots แนะนำ';
@@ -1181,6 +1195,14 @@ function calc() {
     document.getElementById('main-label').textContent = 'Risk % ของบัญชี';
     document.getElementById('main-val').textContent   = p.toFixed(2) + '%';
     document.getElementById('main-sub').textContent   = `${lots} Lot = $${rd.toFixed(2)}`;
+
+    const rv = parseFloat(document.getElementById('risk-val').value) || 1;
+    const limitRisk = riskUnit === 'pct' ? acct * rv / 100 : rv;
+    if (rd > limitRisk && limitRisk > 0) {
+      const over = rd - limitRisk;
+      const overPct = acct > 0 ? over / acct * 100 : 0;
+      warn = `over|⚠️ Risk จริง ($${rd.toFixed(2)}) เกิน Limit $${limitRisk.toFixed(2)} อยู่ $${over.toFixed(2)} (+${overPct.toFixed(2)}%)`;
+    }
   }
 
   const riskDollar   = riskPerLot * lots;
@@ -1228,8 +1250,17 @@ function calc() {
 
   // Warning
   const wEl = document.getElementById('warn-msg');
-  wEl.style.display = warn ? '' : 'none';
-  wEl.textContent   = warn;
+  if (warn) {
+    const parts = warn.split('|');
+    const severity = parts[0]; // 'over'
+    const msg = parts[1];
+    wEl.style.display = '';
+    wEl.textContent = msg;
+    wEl.className = 'warn warn-over';
+  } else {
+    wEl.style.display = 'none';
+    wEl.className = 'warn';
+  }
 
   // Contract info
   const tpp = Math.round(1 / a.tick);
